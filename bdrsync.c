@@ -35,6 +35,8 @@
 #define BDRSYNC_NAME "bdrsync"
 #define BDRSYNC_VERSION "0.1"
 
+#define OUT_WIDTH 80
+
 /*
  * Sigh.
  */
@@ -226,23 +228,30 @@ void syncdev(const char* name1, int fd1, long long size1,
     long long count = size1/blocksize;
     long long i;
 
-    fprintf(stderr, "%lld %lld %d\n", size1, count, blocksize);
+    fprintf(stdout, "%lld %lld %d\n", size1, count, blocksize);
 
     for(i = 0; i != count; ++i)
     {
-        if(!(i%80))
-            putc('\n', stderr);
+        if(syncblock(name1, fd1, buffer1, name2, fd2, buffer2, blocksize))
+            putc('+', stdout);
+        else
+            putc('.', stdout);
 
-        syncblock(name1, fd1, buffer1, name2, fd2, buffer2, blocksize);
+        if((i%OUT_WIDTH) == (OUT_WIDTH-1))
+            putc('\n', stdout);
     }
 
     if(count * blocksize != size1)
     {
         int tail = size1 - count*blocksize;
-        syncblock(name1, fd1, buffer1, name2, fd2, buffer2, tail);
+
+        if(syncblock(name1, fd1, buffer1, name2, fd2, buffer2, tail))
+            putc('+', stdout);
+        else
+            putc('.', stdout);
     }
 
-    putc('\n', stderr);
+    putc('\n', stdout);
 
     free(buffer1);
     free(buffer2);
