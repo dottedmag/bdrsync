@@ -29,6 +29,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <err.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
@@ -104,16 +105,10 @@ void verboseputc(char c)
 void check_get_blkdev(int fd, const char* name, struct stat* out)
 {
     if(fstat(fd, out))
-    {
-        perror(name);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s fstat", name);
 
     if(!S_ISBLK(out->st_mode))
-    {
-        fprintf(stderr, "%s: is not a block device\n", name);
-        exit(EXIT_FAILURE);
-    }
+        errx(EXIT_FAILURE, "%s is not a block device\n", name);
 }
 
 #if 0
@@ -122,34 +117,27 @@ void check_subdevice(const char* name1, struct stat* stat1,
 {
     if(major(stat1->st_rdev) == major(stat2->st_rdev)
        && minor(stat1->st_rdev) == 0)
-    {
-        fprintf(stderr, "%s is a part of %s\n", name2, name1);
-        exit(EXIT_FAILURE);
-    }
+        errx(EXIT_FAILURE, "%s is a part of %s", name2, name1);
 }
 #endif
 
 long long get_size(const char* name, int fd)
 {
     long long res;
-    int err = ioctl(fd, BLKGETSIZE64, &res);
-    if(err == -1)
-    {
-        perror(name);
-        exit(EXIT_FAILURE);
-    }
+    int err_ = ioctl(fd, BLKGETSIZE64, &res);
+    if(err_ == -1)
+        err(EXIT_FAILURE, "%s BLKGETSIZE64", name);
+
     return res;
 }
 
 int get_block_size(const char* name, int fd)
 {
     int res;
-    int err = ioctl(fd, BLKBSZGET, &res);
-    if(err == -1)
-    {
-        perror(name);
-        exit(EXIT_FAILURE);
-    }
+    int err_ = ioctl(fd, BLKBSZGET, &res);
+    if(err_ == -1)
+        err(EXIT_FAILURE, "%s BLKBSZGET", name);
+
     return res;
 }
 
@@ -199,30 +187,19 @@ int syncblock(const char* name1, int fd1, char* buffer1,
               int blocksize)
 {
     if(-1 == lread(fd1, buffer1, blocksize))
-    {
-        perror(name1);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s lread", name1);
+
     if(-1 == lread(fd2, buffer2, blocksize))
-    {
-        perror(name2);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s lread", name2);
 
     if(!memcmp(buffer1, buffer2, blocksize))
         return 0;
 
     if(-1 == lseek(fd2, -blocksize, SEEK_CUR))
-    {
-        perror(name2);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s lseek", name2);
 
     if(-1 == lwrite(fd2, buffer1, blocksize))
-    {
-        perror(name2);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s lwrite", name2);
 
     return 1;
 }
@@ -302,16 +279,11 @@ int main(int argc, char** argv)
 
     int first_fd = open(first_device, O_NOATIME | O_RDONLY);
     if(first_fd == -1)
-    {
-        perror(first_device);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s open", first_device);
+
     int second_fd = open(second_device, O_NOATIME | O_RDWR);
     if(second_fd == -1)
-    {
-        perror(second_device);
-        exit(EXIT_FAILURE);
-    }
+        err(EXIT_FAILURE, "%s opne", second_device);
 
     struct stat d1_stat;
     struct stat d2_stat;
@@ -320,21 +292,15 @@ int main(int argc, char** argv)
 
     if(major(d1_stat.st_rdev) == major(d2_stat.st_rdev)
        && minor(d1_stat.st_rdev) == minor(d2_stat.st_rdev))
-    {
-        fprintf(stderr, "%s and %s are the same device\n",
+        errx(EXIT_FAILURE, "%s and %s are the same device\n",
                 first_device, second_device);
-        exit(EXIT_FAILURE);
-    }
 
     long long d1_size = get_size(first_device, first_fd);
     long long d2_size = get_size(second_device, second_fd);
 
     if (d2_size < d1_size)
-    {
-        fprintf(stderr, "target device %s is smaller than source %s",
+        errx(EXIT_FAILURE, "target device %s is smaller than source %s",
                 second_device, first_device);
-        exit(EXIT_FAILURE);
-    }
 
     syncdev(first_device, first_fd, d1_size,
             second_device, second_fd, d2_size);
