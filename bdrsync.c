@@ -205,7 +205,7 @@ int syncblock(const char* name1, int fd1, char* buffer1,
 }
 
 void syncdev(const char* name1, int fd1, long long size1,
-             const char* name2, int fd2, long long size2)
+             const char* name2, int fd2)
 {
     int blocksize1 = get_block_size(name1, fd1);
     int blocksize2 = get_block_size(name2, fd2);
@@ -303,7 +303,7 @@ int main(int argc, char** argv)
                 second_device, first_device);
 
     syncdev(first_device, first_fd, d1_size,
-            second_device, second_fd, d2_size);
+            second_device, second_fd);
 
     return 0;
 }
