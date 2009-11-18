@@ -1,4 +1,4 @@
-CFLAGS=-O2 -g -Wall --std=c99
+CFLAGS=-O2 -g -W -Wall -Werror --std=c99
 
 all: bdrsync
 
