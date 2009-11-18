@@ -20,6 +20,7 @@
 #define _BSD_SOURCE 1
 #define _GNU_SOURCE 1
 
+#include <stdbool.h>
 #include <errno.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -45,12 +46,18 @@
 #define BLKGETSIZE64 _IOR(0x12,114,size_t)
 #endif
 
+/* Global vars */
+
+static bool verbose;
+
 static struct option longopts[] = {
     { "help", no_argument, NULL, 'h' },
     { "verbose", no_argument, NULL, 'v' },
     { "version", no_argument, NULL, 'V' },
     { NULL, 0, NULL, 0 }
 };
+
+/* Code */
 
 void usage()
 {
@@ -86,6 +93,12 @@ int gcd(int a, int b)
 int lcs(int a, int b)
 {
     return a / gcd(a, b) * b;
+}
+
+void verboseputc(char c)
+{
+    if(verbose)
+        putc(c, stdout);
 }
 
 void check_get_blkdev(int fd, const char* name, struct stat* out)
@@ -233,12 +246,13 @@ void syncdev(const char* name1, int fd1, long long size1,
     for(i = 0; i != count; ++i)
     {
         if(syncblock(name1, fd1, buffer1, name2, fd2, buffer2, blocksize))
-            putc('+', stdout);
+            verboseputc('+');
+
         else
-            putc('.', stdout);
+            verboseputc('.');
 
         if((i%OUT_WIDTH) == (OUT_WIDTH-1))
-            putc('\n', stdout);
+            verboseputc('\n');
     }
 
     if(count * blocksize != size1)
@@ -246,12 +260,12 @@ void syncdev(const char* name1, int fd1, long long size1,
         int tail = size1 - count*blocksize;
 
         if(syncblock(name1, fd1, buffer1, name2, fd2, buffer2, tail))
-            putc('+', stdout);
+            verboseputc('+');
         else
-            putc('.', stdout);
+            verboseputc('.');
     }
 
-    putc('\n', stdout);
+    verboseputc('\n');
 
     free(buffer1);
     free(buffer2);
@@ -259,8 +273,6 @@ void syncdev(const char* name1, int fd1, long long size1,
 
 int main(int argc, char** argv)
 {
-    int verbosity = 0;
-
     int r;
     while((r = getopt_long(argc, argv, "hvV", longopts, NULL)) != -1)
         switch(r)
@@ -269,7 +281,7 @@ int main(int argc, char** argv)
             usage();
             exit(EXIT_SUCCESS);
         case 'v':
-            verbosity++;
+            verbose = true;
             break;
         case 'V':
             version();
