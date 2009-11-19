@@ -16,7 +16,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _FILE_OFFSET_BITS 1
+#define _LARGEFILE64_SORURCE
 #define _BSD_SOURCE 1
 #define _GNU_SOURCE 1
 
@@ -195,7 +195,7 @@ int syncblock(const char* name1, int fd1, char* buffer1,
     if(!memcmp(buffer1, buffer2, blocksize))
         return 0;
 
-    if(-1 == lseek(fd2, -blocksize, SEEK_CUR))
+    if(-1 == lseek64(fd2, -blocksize, SEEK_CUR))
         err(EXIT_FAILURE, "%s lseek", name2);
 
     if(-1 == lwrite(fd2, buffer1, blocksize))
