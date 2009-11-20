@@ -196,7 +196,7 @@ int syncblock(const char* name1, int fd1, char* buffer1,
         return 0;
 
     if(-1 == lseek64(fd2, -blocksize, SEEK_CUR))
-        err(EXIT_FAILURE, "%s lseek", name2);
+        err(EXIT_FAILURE, "%s lseek64", name2);
 
     if(-1 == lwrite(fd2, buffer1, blocksize))
         err(EXIT_FAILURE, "%s lwrite", name2);
