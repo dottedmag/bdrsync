@@ -283,7 +283,7 @@ int main(int argc, char** argv)
 
     int second_fd = open(second_device, O_NOATIME | O_RDWR);
     if(second_fd == -1)
-        err(EXIT_FAILURE, "%s opne", second_device);
+        err(EXIT_FAILURE, "%s open", second_device);
 
     struct stat d1_stat;
     struct stat d2_stat;
