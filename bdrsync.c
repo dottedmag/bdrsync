@@ -111,16 +111,6 @@ void check_get_blkdev(int fd, const char* name, struct stat* out)
         errx(EXIT_FAILURE, "%s is not a block device\n", name);
 }
 
-#if 0
-void check_subdevice(const char* name1, struct stat* stat1,
-                     const char* name2, struct stat* stat2)
-{
-    if(major(stat1->st_rdev) == major(stat2->st_rdev)
-       && minor(stat1->st_rdev) == 0)
-        errx(EXIT_FAILURE, "%s is a part of %s", name2, name1);
-}
-#endif
-
 long long get_size(const char* name, int fd)
 {
     long long res;
