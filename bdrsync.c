@@ -218,7 +218,8 @@ void syncdev(const char* name1, int fd1, long long size1,
     long long count = size1/blocksize;
     long long i;
 
-    fprintf(stdout, "%lld %lld %d\n", size1, count, blocksize);
+    if (verbose)
+        fprintf(stdout, "%lld %lld %d\n", size1, count, blocksize);
 
     for(i = 0; i != count; ++i)
     {
