@@ -51,7 +51,7 @@
 
 static bool verbose;
 
-static struct option longopts[] = {
+static const struct option longopts[] = {
     { "help", no_argument, NULL, 'h' },
     { "verbose", no_argument, NULL, 'v' },
     { "version", no_argument, NULL, 'V' },
