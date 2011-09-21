@@ -208,7 +208,7 @@ void syncdev(const char* name1, int fd1, long long size1,
     long long count = size1/blocksize;
     long long i;
 
-    if (verbose)
+    if(verbose)
         fprintf(stdout, "%lld %lld %d\n", size1, count, blocksize);
 
     for(i = 0; i != count; ++i)
@@ -289,7 +289,7 @@ int main(int argc, char** argv)
     long long d1_size = get_size(first_device, first_fd);
     long long d2_size = get_size(second_device, second_fd);
 
-    if (d2_size < d1_size)
+    if(d2_size < d1_size)
         errx(EXIT_FAILURE, "target device %s is smaller than source %s",
                 second_device, first_device);
 
