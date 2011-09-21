@@ -47,8 +47,6 @@
 #define BLKGETSIZE64 _IOR(0x12,114,size_t)
 #endif
 
-/* Global vars */
-
 static bool verbose;
 
 static const struct option longopts[] = {
@@ -57,8 +55,6 @@ static const struct option longopts[] = {
     { "version", no_argument, NULL, 'V' },
     { NULL, 0, NULL, 0 }
 };
-
-/* Code */
 
 static void usage(void)
 {
