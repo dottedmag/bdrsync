@@ -4,3 +4,6 @@ all: bdrsync
 
 clean:
 	-rm bdrsync
+
+README.html: README.md
+	markdown $< > $@
