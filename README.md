@@ -19,7 +19,8 @@ with caution, during low-activity time, and on journalled filesystems.
 Motivation
 ==========
 
-Implementation of [JWZ backups scheme][1] for laptop and USB-attached hard drive.
+Implementation of [JWZ backups scheme][1] for laptop with complex structure of
+LVM volumes and USB-attached hard drive.
 
 [1]: http://www.jwz.org/doc/backups.html
 
