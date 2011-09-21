@@ -60,7 +60,7 @@ static const struct option longopts[] = {
 
 /* Code */
 
-void usage()
+static void usage(void)
 {
     printf("Usage: " BDRSYNC_NAME " [OPTIONS] BLKDEV1 BLKDEV2\n");
     printf("Efficiently copy contents of BLKDEV1 to BLKDEV2.\n");
@@ -70,7 +70,7 @@ void usage()
     printf(" -h, --help            display this help and exit\n");
 }
 
-void version()
+static void version(void)
 {
     printf(BDRSYNC_NAME " " BDRSYNC_VERSION "\n");
     printf("© 2009 Mikhail Gusarov <dottedmag@dottedmag.net>\n");
@@ -81,7 +81,7 @@ void version()
     printf("There is NO WARRANTY, to the extent permitted by law.\n");
 }
 
-int gcd(int a, int b)
+static int gcd(int a, int b)
 {
     while(a && b)
         if(a >= b)
@@ -91,18 +91,18 @@ int gcd(int a, int b)
    return a + b;
 }
 
-int lcs(int a, int b)
+static int lcs(int a, int b)
 {
     return a / gcd(a, b) * b;
 }
 
-void verboseputc(char c)
+static void verboseputc(char c)
 {
     if(verbose)
         putc(c, stdout);
 }
 
-void check_get_blkdev(int fd, const char* name, struct stat* out)
+static void check_get_blkdev(int fd, const char* name, struct stat* out)
 {
     if(fstat(fd, out))
         err(EXIT_FAILURE, "%s fstat", name);
@@ -111,7 +111,7 @@ void check_get_blkdev(int fd, const char* name, struct stat* out)
         errx(EXIT_FAILURE, "%s is not a block device\n", name);
 }
 
-long long get_size(const char* name, int fd)
+static long long get_size(const char* name, int fd)
 {
     long long res;
     int err_ = ioctl(fd, BLKGETSIZE64, &res);
@@ -121,7 +121,7 @@ long long get_size(const char* name, int fd)
     return res;
 }
 
-int get_block_size(const char* name, int fd)
+static int get_block_size(const char* name, int fd)
 {
     int res;
     int err_ = ioctl(fd, BLKBSZGET, &res);
@@ -131,7 +131,7 @@ int get_block_size(const char* name, int fd)
     return res;
 }
 
-int lread(int fh, char* buf, size_t count)
+static int lread(int fh, char* buf, size_t count)
 {
     while(count)
     {
@@ -150,7 +150,7 @@ int lread(int fh, char* buf, size_t count)
     return 0;
 }
 
-int lwrite(int fh, const char* buf, size_t count)
+static int lwrite(int fh, const char* buf, size_t count)
 {
     while(count)
     {
@@ -172,9 +172,9 @@ int lwrite(int fh, const char* buf, size_t count)
 /*
  * Returns 0 if block does not need to be sync'ed.
  */
-int syncblock(const char* name1, int fd1, char* buffer1,
-              const char* name2, int fd2, char* buffer2,
-              int blocksize)
+static int syncblock(const char* name1, int fd1, char* buffer1,
+                     const char* name2, int fd2, char* buffer2,
+                     int blocksize)
 {
     if(-1 == lread(fd1, buffer1, blocksize))
         err(EXIT_FAILURE, "%s lread", name1);
@@ -194,8 +194,8 @@ int syncblock(const char* name1, int fd1, char* buffer1,
     return 1;
 }
 
-void syncdev(const char* name1, int fd1, long long size1,
-             const char* name2, int fd2)
+static void syncdev(const char* name1, int fd1, long long size1,
+                    const char* name2, int fd2)
 {
     int blocksize1 = get_block_size(name1, fd1);
     int blocksize2 = get_block_size(name2, fd2);
